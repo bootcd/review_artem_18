@@ -12,8 +12,7 @@ from ..database import Base
 class UserModel(Base):
     __tablename__ = 'user'
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID, primary_key=True, index=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, index=True, default=uuid.uuid4)
     email: Mapped[str] = mapped_column(unique=True, index=True)
     hashed_password: Mapped[str]
     fio: Mapped[str]

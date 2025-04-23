@@ -1,7 +1,7 @@
 import uuid
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 
 
 class UserBase(BaseModel):
@@ -27,9 +27,8 @@ class User(UserBase):
     email: str
     fio: str
     is_active: bool
-    is_verified: bool
     is_superuser: bool
-
+    is_verified: bool
     class Config:
         from_attributes = True
 
@@ -56,3 +55,8 @@ class Token(BaseModel):
     access_token: str
     refresh_token: uuid.UUID
     token_type: str
+
+    @property
+    @computed_field
+    def refresh_token_string(self) ->str:
+        return str(self.refresh_token)
