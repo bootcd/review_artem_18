@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
 
 from .database import async_session_maker, Base
+from .users.schemas import UserUpdate
+
 # from .logger import logger
 
 
@@ -41,7 +43,8 @@ class BaseDAO(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             .limit(limit)
         )
         result = await session.execute(stmt)
-        return result.scalars().all()
+        resources = result.scalars().all()
+        return [item for item in resources]
 
     @classmethod
     async def add(
@@ -65,7 +68,7 @@ class BaseDAO(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 msg = "Unknown Exc: Cannot insert data into table"
 
             # logger.error(msg, extra={"table": cls.model.__tablename__}, exc_info=True)
-            print(msg)
+            # print(msg)
             return None
 
     @classmethod
@@ -80,7 +83,7 @@ class BaseDAO(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         *where,
         obj_in: Union[UpdateSchemaType, Dict[str, Any]],
         # id: Any
-    ) -> Optional[ModelType]:
+    ) -> Optional[UserUpdate]:
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:
@@ -94,7 +97,8 @@ class BaseDAO(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             returning(cls.model)
         )
         result = await session.execute(stmt)
-        return result.scalars().one()
+        resource = result.scalars().one()
+        return UserUpdate.model_validate(resource)
 
     @classmethod
     async def add_bulk(cls, session: AsyncSession, data: List[Dict[str, Any]]):
